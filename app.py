@@ -627,22 +627,20 @@ EMOTION_META = {
 }
 
 # Fallback path layout — adjust if you place models elsewhere
-BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR   = "davidhoky/BERT"   # DistilBERT fine-tuned
-DATA_PATH   = os.path.join(BASE_DIR, "data", "imdb_movies_with_emotions.csv").replace("\\", "/")
+# BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR   = "models/bert"   # DistilBERT fine-tuned
+DATA_PATH   = "data/imdb_movies_with_emotions.csv"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CACHED RESOURCE LOADERS
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner=False)
 def load_emotion_model():
-    """Load fine-tuned DistilBERT + label encoder once."""
-    tokenizer  = DistilBertTokenizer.from_pretrained(MODEL_DIR)
-    model      = DistilBertForSequenceClassification.from_pretrained(MODEL_DIR)
+    tokenizer = DistilBertTokenizer.from_pretrained(MODEL_DIR)
+    model = DistilBertForSequenceClassification.from_pretrained(MODEL_DIR)
     model.eval()
 
-    encoder_path = os.path.join(BASE_DIR, "models", "bert", "label_encoder.pkl").replace("\\", "/")
-    with open(encoder_path, "rb") as f:
+    with open(f"{MODEL_DIR}/label_encoder.pkl", "rb") as f:
         label_encoder = pickle.load(f)
 
     return tokenizer, model, label_encoder
