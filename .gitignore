@@ -1,0 +1,22 @@
+# Model files
+models/
+
+*.keras
+*.h5
+*.pt
+*.bin
+*.safetensors
+
+# HuggingFace checkpoints
+checkpoint-*/
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual Environment
+venv/
+env/
