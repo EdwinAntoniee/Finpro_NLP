@@ -18,9 +18,7 @@ from transformers import pipeline
 import warnings
 
 warnings.filterwarnings("ignore", module="transformers")
-# ─────────────────────────────────────────────────────────────────────────────
-# PAGE CONFIG  (must be the very first Streamlit call)
-# ─────────────────────────────────────────────────────────────────────────────
+
 st.set_page_config(
     page_title="Cinema.io",
     page_icon="🎬",
@@ -28,15 +26,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CUSTOM CSS — Apple-inspired Glassmorphism Dark UI
-# ─────────────────────────────────────────────────────────────────────────────
 CUSTOM_CSS = """
 <style>
-/* ── Google Fonts ── */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap');
-
-/* ── Reset & Root ── */
 :root {
     --bg-base:        #0a0a0f;
     --bg-surface:     rgba(255,255,255,0.04);
@@ -62,15 +54,11 @@ CUSTOM_CSS = """
     --font-body:      'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --transition:     all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-/* ── Global override ── */
 html, body, [class*="css"] {
     font-family: var(--font-body) !important;
     background-color: var(--bg-base) !important;
     color: var(--text-primary) !important;
 }
-
-/* Hide Streamlit chrome completely without leaving empty spaces */
 #MainMenu, footer, header,
 [data-testid="stHeader"],
 [data-testid="stToolbar"],
@@ -81,8 +69,6 @@ html, body, [class*="css"] {
     min-height: 0 !important;
     visibility: hidden !important;
 }
-
-/* ── KUNCI: Reset semua padding/margin Streamlit wrapper ── */
 .block-container,
 [data-testid="stMainBlockContainer"],
 [data-testid="stMain"],
@@ -94,8 +80,6 @@ html, body, [class*="css"] {
     margin-top: 0 !important;
     max-width: 100% !important;
 }
-
-/* Pastikan root juga tidak punya margin */
 html, body {
     margin: 0 !important;
     padding: 0 !important;
@@ -103,13 +87,9 @@ html, body {
 }
 
 section[data-testid="stSidebar"] { display: none !important; }
-
-/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 2px; }
-
-/* ── App wrapper — langsung ke container Streamlit ── */
 [data-testid="stAppViewContainer"],
 [data-testid="stMain"] {
     background: var(--bg-base) !important;
@@ -117,6 +97,7 @@ section[data-testid="stSidebar"] { display: none !important; }
         radial-gradient(ellipse 80% 50% at 20% -10%, rgba(167,139,250,0.10) 0%, transparent 60%),
         radial-gradient(ellipse 60% 40% at 80% 110%, rgba(96,165,250,0.07) 0%, transparent 60%) !important;
 }
+
 [data-testid="stMainBlockContainer"],
 .block-container {
     padding-left: clamp(16px, 4vw, 60px) !important;
@@ -124,8 +105,6 @@ section[data-testid="stSidebar"] { display: none !important; }
     padding-bottom: 80px !important;
     max-width: 100% !important;
 }
-
-/* ── Navbar ── */
 .navbar {
     display: flex;
     align-items: center;
@@ -165,8 +144,6 @@ section[data-testid="stSidebar"] { display: none !important; }
     padding: 5px 12px;
     border-radius: 100px;
 }
-
-/* ── Hero section ── */
 .hero {
     text-align: center;
     padding: 72px 0 56px;
@@ -186,6 +163,7 @@ section[data-testid="stSidebar"] { display: none !important; }
     border-radius: 100px;
     margin-bottom: 28px;
 }
+
 .hero-eyebrow::before {
     content: '';
     width: 6px; height: 6px;
@@ -197,6 +175,7 @@ section[data-testid="stSidebar"] { display: none !important; }
     0%, 100% { opacity: 1; transform: scale(1); }
     50%       { opacity: 0.4; transform: scale(0.7); }
 }
+
 .hero-headline {
     font-family: var(--font-display);
     font-size: clamp(40px, 6vw, 72px);
@@ -221,8 +200,6 @@ section[data-testid="stSidebar"] { display: none !important; }
     margin: 0 auto;
     line-height: 1.65;
 }
-
-/* ── Typewriter card (pengganti hero-subline) ── */
 .typewriter-card {
     max-width: 780px;
     margin: 0 auto 32px;
@@ -250,9 +227,6 @@ section[data-testid="stSidebar"] { display: none !important; }
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }
 }
-
-
-/* ── Input label ── */
 .input-label {
     max-width: 780px;
     margin: 0 auto 10px;
@@ -262,8 +236,6 @@ section[data-testid="stSidebar"] { display: none !important; }
     text-transform: uppercase;
     color: var(--text-muted);
 }
-
-/* ── Glassmorphism card meliputi textarea + button ── */
 div[data-testid="stTextArea"] {
     max-width: 780px !important;
     margin-left: auto !important;
@@ -274,7 +246,6 @@ div[data-testid="stTextArea"] {
     border: 1px solid var(--border-subtle) !important;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
     padding: 24px 24px 16px !important;
-    /* Hanya menyisakan bayangan gelap (shadow-card), efek glow dihapus */
     box-shadow: var(--shadow-card) !important; 
     transition: var(--transition) !important;
 }
@@ -292,7 +263,6 @@ div[data-testid="stButton"] {
     border-top: none !important;
     border-radius: 0 0 var(--radius-xl) var(--radius-xl) !important;
     padding: 4px 24px 24px !important;
-    /* Hanya menyisakan bayangan gelap (shadow-card), efek glow dihapus */
     box-shadow: var(--shadow-card) !important;
     margin-bottom: 48px !important;
 }
@@ -313,6 +283,7 @@ div[data-testid="stTextArea"] textarea {
     padding: 18px 20px !important;
     transition: var(--transition) !important;
 }
+
 div[data-testid="stTextArea"] textarea:focus {
     border-color: rgba(167,139,250,0.40) !important;
     box-shadow: 0 0 0 3px rgba(167,139,250,0.10) !important;
@@ -323,9 +294,8 @@ div[data-testid="stTextArea"] textarea::placeholder {
     color: var(--text-muted) !important;
     font-style: italic !important;
 }
-div[data-testid="stTextArea"] label { display: none !important; }
 
-/* ── Primary button ── */
+div[data-testid="stTextArea"] label { display: none !important; }
 div[data-testid="stButton"] > button {
     width: 100% !important;
     background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 50%, #2563EB 100%) !important;
@@ -353,8 +323,6 @@ div[data-testid="stButton"] > button:active {
     transform: translateY(0px) !important;
     filter: brightness(0.95) !important;
 }
-
-/* ── Emotion result panel ── */
 .emotion-panel {
     max-width: 780px;
     margin: 0 auto 56px;
@@ -395,16 +363,12 @@ div[data-testid="stButton"] > button:active {
     flex: 1;
     min-width: 200px;
 }
-
-/* Emotion colors */
 .emo-joy     { background: rgba(251,191,36,0.12);  border-color: rgba(251,191,36,0.25);  color: #FCD34D; }
 .emo-sadness { background: rgba(96,165,250,0.12);   border-color: rgba(96,165,250,0.25);  color: #93C5FD; }
 .emo-anger   { background: rgba(248,113,113,0.12);  border-color: rgba(248,113,113,0.25); color: #FCA5A5; }
 .emo-fear    { background: rgba(167,139,250,0.12);  border-color: rgba(167,139,250,0.25); color: #C4B5FD; }
 .emo-surprise{ background: rgba(52,211,153,0.12);   border-color: rgba(52,211,153,0.25);  color: #6EE7B7; }
 .emo-love    { background: rgba(244,114,182,0.12);  border-color: rgba(244,114,182,0.25); color: #F9A8D4; }
-
-/* ── Section header ── */
 .section-header {
     display: flex;
     align-items: baseline;
@@ -423,8 +387,6 @@ div[data-testid="stButton"] > button:active {
     color: var(--text-muted);
     font-weight: 400;
 }
-
-/* ── Movie cards grid ── */
 .movies-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -446,6 +408,7 @@ div[data-testid="stButton"] > button:active {
     cursor: default;
     animation: card-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
+
 .movie-card:hover {
     border-color: var(--border-glow);
     transform: translateY(-4px);
@@ -455,13 +418,12 @@ div[data-testid="stButton"] > button:active {
     from { opacity: 0; transform: translateY(18px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
 .movie-card:nth-child(1) { animation-delay: 0.05s; }
 .movie-card:nth-child(2) { animation-delay: 0.10s; }
 .movie-card:nth-child(3) { animation-delay: 0.15s; }
 .movie-card:nth-child(4) { animation-delay: 0.20s; }
 .movie-card:nth-child(5) { animation-delay: 0.25s; }
-
-/* rank badge */
 .card-rank {
     position: absolute;
     top: 20px; right: 20px;
@@ -488,12 +450,14 @@ div[data-testid="stButton"] > button:active {
     padding-right: 48px;
     line-height: 1.25;
 }
+
 .card-genres {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
     margin-bottom: 16px;
 }
+
 .genre-pill {
     font-size: 11px;
     font-weight: 500;
@@ -505,6 +469,7 @@ div[data-testid="stButton"] > button:active {
     color: var(--text-secondary);
     white-space: nowrap;
 }
+
 .card-overview {
     font-size: 13.5px;
     font-weight: 300;
@@ -516,6 +481,7 @@ div[data-testid="stButton"] > button:active {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
 .card-footer {
     display: flex;
     align-items: center;
@@ -524,6 +490,7 @@ div[data-testid="stButton"] > button:active {
     border-top: 1px solid var(--border-subtle);
     gap: 12px;
 }
+
 .similarity-label {
     font-size: 11px;
     font-weight: 500;
@@ -531,6 +498,7 @@ div[data-testid="stButton"] > button:active {
     text-transform: uppercase;
     color: var(--text-muted);
 }
+
 .similarity-bar-track {
     flex: 1;
     height: 4px;
@@ -538,6 +506,7 @@ div[data-testid="stButton"] > button:active {
     border-radius: 2px;
     overflow: hidden;
 }
+
 .similarity-bar-fill {
     height: 100%;
     border-radius: 2px;
@@ -545,6 +514,7 @@ div[data-testid="stButton"] > button:active {
     box-shadow: 0 0 8px rgba(167,139,250,0.5);
     transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .similarity-value {
     font-size: 13px;
     font-weight: 500;
@@ -552,13 +522,9 @@ div[data-testid="stButton"] > button:active {
     min-width: 40px;
     text-align: right;
 }
-
-/* ── Loading spinner ── */
 div[data-testid="stSpinner"] > div {
     color: var(--accent) !important;
 }
-
-/* ── Info / warning messages ── */
 .info-box {
     max-width: 780px;
     margin: 0 auto 32px;
@@ -571,8 +537,6 @@ div[data-testid="stSpinner"] > div {
     color: var(--text-secondary);
     line-height: 1.6;
 }
-
-/* ── Empty state ── */
 .empty-state {
     text-align: center;
     padding: 64px 32px;
@@ -580,19 +544,13 @@ div[data-testid="stSpinner"] > div {
 }
 .empty-state-icon { font-size: 42px; margin-bottom: 16px; }
 .empty-state-text { font-size: 16px; font-weight: 300; }
-
-/* ── Hide Streamlit default labels on text_area ── */
 .stTextArea label p { display: none; }
-
-/* ── Divider ── */
 .divider {
     height: 1px;
     background: var(--border-subtle);
     margin: 56px 0;
     max-width: 1200px;
 }
-
-/* ── Footer ── */
 .app-footer {
     text-align: center;
     padding: 32px 0 0;
@@ -603,8 +561,6 @@ div[data-testid="stSpinner"] > div {
     max-width: 1200px;
     margin: 56px auto 0;
 }
-
-/* ── Responsive ── */
 @media (max-width: 640px) {
     .movies-grid { grid-template-columns: 1fr; }
     .hero-headline { font-size: 36px; letter-spacing: -1px; }
@@ -613,9 +569,6 @@ div[data-testid="stSpinner"] > div {
 </style>
 """
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CONSTANTS & HELPERS
-# ─────────────────────────────────────────────────────────────────────────────
 EMOTION_META = {
     "Joy":      {"emoji": "☀️", "css_class": "emo-joy",      "desc": "You're radiating warmth and optimism."},
     "Sadness":  {"emoji": "🌧️", "css_class": "emo-sadness",  "desc": "There's a quiet ache in your words."},
@@ -625,8 +578,6 @@ EMOTION_META = {
     "Love":     {"emoji": "🌸", "css_class": "emo-love",     "desc": "Warmth and tenderness colour your feeling."},
 }
 
-# Fallback path layout — adjust if you place models elsewhere
-# BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 from transformers import pipeline
 
 classifier = pipeline(
@@ -635,11 +586,8 @@ classifier = pipeline(
     tokenizer="winniedepoo/emotion-movie-distilbert"
 )
 
-DATA_PATH   = "data/imdb_movies_with_emotions.csv"
+DATA_PATH = "data/imdb_movies_with_emotions.csv"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CACHED RESOURCE LOADERS
-# ─────────────────────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner=False)
 @st.cache_resource(show_spinner=False)
 def load_emotion_model():
@@ -655,7 +603,6 @@ def load_emotion_model():
 def load_movie_data():
     """Load the self-labeled IMDb dataset and fit TF-IDF once."""
     df = pd.read_csv(DATA_PATH)
-    # Safety: drop rows without clean_overview
     df = df.dropna(subset=["clean_overview", "Overview", "Series_Title"])
     df = df.reset_index(drop=True)
 
@@ -665,18 +612,19 @@ def load_movie_data():
     return df, tfidf
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# INFERENCE FUNCTIONS
-# ─────────────────────────────────────────────────────────────────────────────
 def predict_emotion(text: str, classifier) -> str:
-    # Memasukkan teks langsung ke pipeline
     result = classifier(text)
-    
-    # Mengambil nama emosi dari output pipeline
-    emotion_label = result[0]["label"]
-    
-    return emotion_label
-
+    raw_label = result[0]["label"]
+    label_mapping = {
+        "LABEL_0": "Anger",
+        "LABEL_1": "Fear",
+        "LABEL_2": "Joy",
+        "LABEL_3": "Love",
+        "LABEL_4": "Sadness",
+        "LABEL_5": "Surprise"
+    }
+    emotion_name = label_mapping.get(raw_label, raw_label)
+    return emotion_name
 
 def recommend_movies(
     user_text: str,
@@ -689,11 +637,10 @@ def recommend_movies(
     if filtered.empty:
         return pd.DataFrame()
 
-    user_vec   = tfidf.transform([user_text])
+    user_vec = tfidf.transform([user_text])
     movie_vecs = tfidf.transform(filtered["clean_overview"].astype(str))
-
-    scores     = cosine_similarity(user_vec, movie_vecs).flatten()
-    top_idx    = scores.argsort()[-top_n:][::-1]
+    scores = cosine_similarity(user_vec, movie_vecs).flatten()
+    top_idx = scores.argsort()[-top_n:][::-1]
 
     result = filtered.iloc[top_idx][["Series_Title", "Genre", "Overview"]].copy()
     result["similarity_score"] = scores[top_idx]
@@ -701,9 +648,6 @@ def recommend_movies(
     return result
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# HTML RENDERING HELPERS
-# ─────────────────────────────────────────────────────────────────────────────
 def render_emotion_panel(emotion: str, user_text: str) -> str:
     meta = EMOTION_META.get(emotion, {"emoji": "🎭", "css_class": "", "desc": ""})
     return f"""
@@ -721,12 +665,12 @@ def render_emotion_panel(emotion: str, user_text: str) -> str:
 
 
 def render_movie_card(row, rank: int) -> str:
-    title    = row["Series_Title"]
+    title = row["Series_Title"]
     overview = row["Overview"]
-    genres   = [g.strip() for g in str(row["Genre"]).split(",") if g.strip()]
-    score    = float(row["similarity_score"])
-    pct      = int(round(score * 100))
-    bar_pct  = min(int(score * 100 * 4), 100)  # scale for visibility
+    genres = [g.strip() for g in str(row["Genre"]).split(",") if g.strip()]
+    score = float(row["similarity_score"])
+    pct = int(round(score * 100))
+    bar_pct = min(int(score * 100 * 4), 100)
 
     rank_cls = f"rank-{rank}" if rank <= 3 else ""
     rank_label = {1: "🥇 Best Match", 2: "🥈 Runner Up", 3: "🥉 Top Pick"}.get(rank, f"#{rank}")
@@ -735,7 +679,6 @@ def render_movie_card(row, rank: int) -> str:
         f'<span class="genre-pill">{g}</span>' for g in genres[:4]
     )
 
-    # Menggunakan f-string beruntun tanpa spasi tab di awal baris agar tidak terbaca sebagai Markdown Code Block
     card_html = (
         f'<div class="movie-card">'
         f'<div class="card-rank {rank_cls}">{rank_label}</div>'
@@ -753,14 +696,10 @@ def render_movie_card(row, rank: int) -> str:
     )
     return card_html
 
-# ─────────────────────────────────────────────────────────────────────────────
-# MAIN APP
-# ─────────────────────────────────────────────────────────────────────────────
+
 def main():
-    # Inject CSS
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
-    # ── Navbar ──────────────────────────────────────────────────────────────
     st.markdown("""
     <nav class="navbar">
         <div class="navbar-logo">
@@ -771,7 +710,6 @@ def main():
     </nav>
     """, unsafe_allow_html=True)
 
-# ── Hero ─────────────────────────────────────────────────────────────────
     st.markdown("""
     <div class="hero" style="padding-bottom: 20px;">
         <div class="hero-eyebrow">Multi-Emotion Classification &amp; Semantic Matching</div>
@@ -782,7 +720,6 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-    # Menggunakan Streamlit Components untuk menjalankan JavaScript secara aman
     import streamlit.components.v1 as components
 
     typewriter_code = """
@@ -861,7 +798,7 @@ def main():
 
     # Render komponen dengan tinggi pas agar responsif & tidak memicu scrollbar iframe
     components.html(typewriter_code, height=135, scrolling=False)
-    # ── Input card ───────────────────────────────────────────────────────────
+
     st.markdown('<div class="input-label">How are you feeling right now?</div>', unsafe_allow_html=True)
 
     user_input = st.text_area(
@@ -877,10 +814,9 @@ def main():
 
     analyze_clicked = st.button("✦  Discover My Movies", use_container_width=True)
 
-    # ── Load models (silent) ─────────────────────────────────────────────────
     model_loaded = True
     try:
-        classifier = load_emotion_model()  # <--- Ubah di sini
+        classifier = load_emotion_model()
         df_movies, tfidf = load_movie_data()
     except Exception as e:
         model_loaded = False
@@ -891,7 +827,6 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-    # ── Run inference ─────────────────────────────────────────────────────────
     if analyze_clicked and model_loaded:
         raw_text = (user_input or "").strip()
 
@@ -945,7 +880,6 @@ def main():
                 st.markdown(cards_html, unsafe_allow_html=True)
 
     elif not analyze_clicked:
-        # Idle state hint
         st.markdown("""
         <div class="empty-state" style="opacity:0.5">
             <div class="empty-state-icon">🌙</div>
@@ -953,15 +887,12 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-    # ── Footer ────────────────────────────────────────────────────────────────
     st.markdown("""
     <div class="app-footer">
         Built with DistilBERT · GoEmotions · IMDb Top 1000 
         
     </div>
     """, unsafe_allow_html=True)
-
-    # /app-wrapper (tidak perlu closing div lagi)
 
 
 if __name__ == "__main__":
