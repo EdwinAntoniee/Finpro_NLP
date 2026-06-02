@@ -14,10 +14,9 @@ import pickle
 import torch
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
-import os
-import re
+from transformers import pipeline
 import warnings
+
 warnings.filterwarnings("ignore", module="transformers")
 # ─────────────────────────────────────────────────────────────────────────────
 # PAGE CONFIG  (must be the very first Streamlit call)
@@ -628,23 +627,29 @@ EMOTION_META = {
 
 # Fallback path layout — adjust if you place models elsewhere
 # BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR   = "models/bert"   # DistilBERT fine-tuned
+from transformers import pipeline
+
+classifier = pipeline(
+    "text-classification",
+    model="winniedepoo/emotion-movie-distilbert",
+    tokenizer="winniedepoo/emotion-movie-distilbert"
+)
+
 DATA_PATH   = "data/imdb_movies_with_emotions.csv"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CACHED RESOURCE LOADERS
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner=False)
+@st.cache_resource(show_spinner=False)
 def load_emotion_model():
-    tokenizer = DistilBertTokenizer.from_pretrained(MODEL_DIR)
-    model = DistilBertForSequenceClassification.from_pretrained(MODEL_DIR)
-    model.eval()
-
-    with open(f"{MODEL_DIR}/label_encoder.pkl", "rb") as f:
-        label_encoder = pickle.load(f)
-
-    return tokenizer, model, label_encoder
-
+    """Load model directly from Hugging Face Hub via pipeline."""
+    classifier = pipeline(
+        "text-classification",
+        model="winniedepoo/emotion-movie-distilbert",
+        tokenizer="winniedepoo/emotion-movie-distilbert"
+    )
+    return classifier
 
 @st.cache_data(show_spinner=False)
 def load_movie_data():
@@ -663,18 +668,14 @@ def load_movie_data():
 # ─────────────────────────────────────────────────────────────────────────────
 # INFERENCE FUNCTIONS
 # ─────────────────────────────────────────────────────────────────────────────
-def predict_emotion(text: str, tokenizer, model, label_encoder) -> str:
-    inputs = tokenizer(
-        str(text),
-        return_tensors="pt",
-        truncation=True,
-        padding=True,
-        max_length=128,
-    )
-    with torch.no_grad():
-        outputs = model(**inputs)
-    idx = torch.argmax(outputs.logits, dim=1).item()
-    return label_encoder.inverse_transform([idx])[0]
+def predict_emotion(text: str, classifier) -> str:
+    # Memasukkan teks langsung ke pipeline
+    result = classifier(text)
+    
+    # Mengambil nama emosi dari output pipeline
+    emotion_label = result[0]["label"]
+    
+    return emotion_label
 
 
 def recommend_movies(
@@ -879,15 +880,13 @@ def main():
     # ── Load models (silent) ─────────────────────────────────────────────────
     model_loaded = True
     try:
-        tokenizer, model, label_encoder = load_emotion_model()
+        classifier = load_emotion_model()  # <--- Ubah di sini
         df_movies, tfidf = load_movie_data()
     except Exception as e:
         model_loaded = False
         st.markdown(f"""
         <div class="info-box">
-            ⚠️ <strong>Model files not found.</strong> Please make sure
-            <code>models/bert/</code> and <code>data/imdb_movies_with_emotions.csv</code>
-            exist relative to <code>app.py</code>.<br><br>
+            ⚠️ <strong>Model loading failed.</strong> Please check your Hugging Face model name or internet connection.<br><br>
             <em>Error: {e}</em>
         </div>
         """, unsafe_allow_html=True)
@@ -904,9 +903,7 @@ def main():
             """, unsafe_allow_html=True)
         else:
             with st.spinner("Analysing your emotion…"):
-                detected_emotion = predict_emotion(
-                    raw_text, tokenizer, model, label_encoder
-                )
+                detected_emotion = predict_emotion(raw_text, classifier)
 
             # Emotion panel
             st.markdown(
