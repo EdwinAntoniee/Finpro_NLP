@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore", module="transformers")
 # PAGE CONFIG  (must be the very first Streamlit call)
 # ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Reelio",
+    page_title="Cinema.io",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -765,7 +765,7 @@ def main():
     <nav class="navbar">
         <div class="navbar-logo">
             <div class="navbar-logo-mark">🎬</div>
-            <span class="navbar-title">Reelio</span>
+            <span class="navbar-title">Cinema.io</span>
         </div>
         <span class="navbar-badge">NLP · Emotion AI · IMDb Top 1000</span>
     </nav>
