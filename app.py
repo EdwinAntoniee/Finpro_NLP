@@ -1,5 +1,5 @@
 """
-Reelio — Personalized Movie Recommendation via Multi-Emotion NLP
+CinemaIO — Personalized Movie Recommendation via Multi-Emotion NLP
 =================================================================
 Deployment script for Streamlit.
 Backend: DistilBERT (fine-tuned) for emotion classification
