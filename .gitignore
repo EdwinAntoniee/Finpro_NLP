@@ -1,22 +1,41 @@
-# Model files
+# Model artifacts & weights (>100MB hosted on Hugging Face)
 models/
-
 *.keras
 *.h5
 *.pt
 *.bin
 *.safetensors
-
-# HuggingFace checkpoints
 checkpoint-*/
 
-# Python
+# Python bytecode & cache
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Virtual Environment
+# Virtual Environments
 venv/
 env/
+.venv/
+ENV/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Node modules & presentation generator scripts
+node_modules/
+package-lock.json
+package.json
+ppt.js
+Cinema_io_Presentation.pptx
+~$*
+
+# Temporary scratch notes
+readme2.md
+
+# Operating System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

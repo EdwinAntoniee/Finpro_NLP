@@ -1,379 +1,156 @@
-# Cinema.io: Personalized Movie Recommendation via Multi-Emotion NLP
+# Cinema.io — Personalized movie recommendation system powered by multi-emotion NLP
 
-**Project Name:** Cinema.io  
-**Academic Context:** NLP Lab Final Project | LA01 | Group 23 | 2025 - 2026 4th Semester
-**Live Demo:** https://finpronlp-cinemaio.streamlit.app/
-
----
-
-## 📋 Project Overview
-
-Cinema.io is an end-to-end machine learning pipeline that recommends movies based on your emotional state. The system classifies user emotional input using advanced NLP models and matches them with semantically aligned films from the IMDb top 1000 dataset.
-
-**Core Flow:**
-
-1. User inputs emotional text (e.g., "I'm feeling sad and nostalgic")
-2. DistilBERT (fine-tuned) classifies the emotion (Joy, Love, Surprise, Anger, Fear, or Sadness)
-3. System finds movies with matching emotion tags
-4. TF-IDF + Cosine Similarity ranks movies by semantic alignment with user input
-5. Top 5 recommendations displayed with metadata
+![Frontend](https://img.shields.io/badge/Frontend-Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)
+![AI/ML](https://img.shields.io/badge/AI%2FML-PyTorch%20%2F%20Transformers-EE4C2C?style=flat&logo=pytorch&logoColor=white)
+![Type](https://img.shields.io/badge/Type-Group%20Project-2563EB?style=flat)
+![Status](https://img.shields.io/badge/Status-Completed-success?style=flat)
+![Academic](https://img.shields.io/badge/Academic-Final%20Project-7928CA?style=flat)
+![HuggingFace](https://img.shields.io/badge/HuggingFace-Transformers-FFD21E?style=flat&logo=huggingface&logoColor=black)
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)
 
 ---
+🌐 **Live Demo** — [View Live](https://finpronlp-cinemaio.streamlit.app/)
+---
 
-## 🚀 Quick Start
+## Project Overview
+Cinema.io is an end-to-end natural language processing and recommendation system developed as an academic Final Project at Bina Nusantara University under the academic supervision of the Course Lecturer. The platform analyzes free-form emotional statements and classifies them across six primary emotional categories using a fine-tuned DistilBERT transformer. It then matches user sentiments with semantically aligned movies from an annotated IMDb Top 1000 dataset using TF-IDF vectorization and Cosine Similarity, delivering an empathetic and personalized movie discovery experience.
 
-### Option 1: Online (Recommended for Quick Testing)
+## Key Features
+- Classify unstructured user emotional expressions into six distinct affective categories (Joy, Sadness, Anger, Fear, Surprise, Love)
+- Fine-tune and optimize lightweight DistilBERT transformers achieving state-of-the-art classification performance with low latency
+- Self-label movie synopses across the IMDb Top 1000 catalog through automated transformer inference
+- Match user queries against movie overviews using a 15,000-feature TF-IDF vectorizer and Cosine Similarity ranking
+- Benchmark four diverse model families: Support Vector Machine (LinearSVC), BiLSTM, BERT-Base, and DistilBERT
+- Deliver recommendations through an interactive, glassmorphic Streamlit web interface with real-time prediction badges and similarity metrics
 
-Visit the deployed app at: https://finpronlp-cinemaio.streamlit.app/
+## My Roles & Contributions
+- **Model Architecture & Experimental Engineering**
+  - Architected, trained, and benchmarked four distinct model families: Support Vector Machine (TF-IDF), BiLSTM recurrent networks, BERT-Base, and DistilBERT.
+  - Formulated Bayesian hyperparameter optimization trials using Optuna (`tuning_model/07_tuning_distil.ipynb`), tuning learning rates, warmup schedules, and weight decay to maximize validation Macro F1 score.
+  - Conducted extensive comparative evaluation and error analysis (`evaluation/06_evaluation.ipynb`), establishing fine-tuned DistilBERT as the optimal production engine balancing inference speed and accuracy.
+- **Data Engineering & Pipeline Preprocessing**
+  - Designed text normalization and preprocessing procedures (`preprocessing/preprocessing_data.ipynb`) tailored to preserve bidirectional transformer attention.
+  - Implemented stratified data splitting routines (`splitter/01_data_splitter.ipynb`), ensuring class balance consistency across train and test partitions.
+- **Catalog Annotation & Recommendation Engine**
+  - Developed the automated movie self-labeling pipeline (`self_labeling/09_movie_self_labeling.ipynb`), assigning predicted emotion tags to over 1,000 IMDb film overviews.
+  - Built the hybrid recommendation pipeline combining categorical emotion filtering with TF-IDF vector space modeling and Cosine Similarity ranking (`recommendation_system/10_final_recommendation_system.ipynb`).
+- **Academic Guidance & Research Collaboration**
+  - Executed all model experiments, pipeline architectural decisions, and evaluation frameworks under the direct academic guidance and mentorship of the Course Lecturer.
 
-No installation required—just open the link and start using the recommendation system!
+## Architecture
+The system employs a multi-stage architecture spanning offline model development, catalog annotation, and real-time semantic recommendation:
 
-### Option 2: Run Locally
+```mermaid
+flowchart TD
+    subgraph PHASE1["Phase 1: Model Development & Optimization"]
+        direction TB
+        G1["GoEmotions Corpus\n(~43k Reddit Samples)"] --> G2["6-Class Emotion Filtering\n& Stratified Split"]
+        G2 --> T1["SVM Baseline\n(TF-IDF)"]
+        G2 --> T2["BiLSTM RNN"]
+        G2 --> T3["DistilBERT Fine-Tuning"]
+        G2 --> T4["BERT-Base"]
+        T3 --> OPT["Optuna Bayesian Tuning\n(lr, decay, warmup)"]
+        OPT --> EVAL["Comparative Benchmarking\n(Selected: DistilBERT)"]
+    end
 
-#### Prerequisites
+    subgraph PHASE2["Phase 2: Movie Catalog Annotation"]
+        direction TB
+        M1["IMDb Top 1000 Movies\n(Metadata & Synopses)"] --> M2["Text Normalization\n& Feature Extraction"]
+        M2 --> SL["Self-Labeling Pipeline\n(DistilBERT Inference)"]
+        EVAL -.-> SL
+        SL --> DB[("Emotion-Annotated\nMovie Database")]
+        DB --> TF["TF-IDF Vector Space\n(15,000 Features)"]
+    end
 
+    subgraph PHASE3["Phase 3: Real-Time Streamlit Recommendation"]
+        direction TB
+        USER["User Emotional Query\n(e.g., 'feeling nostalgic & quiet')"] --> CLF["DistilBERT Inference\n(Hugging Face Pipeline)"]
+        CLF --> DETECTED["Detected Emotion\n(e.g., Sadness / Joy)"]
+        DETECTED --> FILTER["Filter Movies by\nTarget Emotion"]
+        DB -.-> FILTER
+        USER --> SIM["Cosine Similarity Engine"]
+        TF -.-> SIM
+        FILTER --> SIM
+        SIM --> TOP["Top 5 Ranked Movies\n(Semantic & Emotion Aligned)"]
+        TOP --> UI["Streamlit Glassmorphic UI\n(Cards, Badges, Overviews)"]
+    end
+```
+
+1. **Model Development**: GoEmotions Reddit comments are filtered to six core emotions, preprocessed, and evaluated across four architectures. DistilBERT with Optuna Bayesian optimization was chosen for production deployment.
+2. **Catalog Annotation**: The IMDb Top 1000 dataset is normalized and labeled with emotion tags using the fine-tuned DistilBERT model to create an annotated movie catalog.
+3. **Real-Time Recommendation**: User queries are classified in real-time. Candidate movies are filtered by the predicted emotion, and the top 5 films are ranked based on cosine similarity between the query and synopses TF-IDF vectors.
+
+## Folder Structure
+```
+Finpro_NLP/
+├── data/                         # Processed datasets and labeled movie data
+│   ├── data_test_master.csv      # Evaluated test partition
+│   ├── data_train_master.csv     # Training partition (8.8k samples)
+│   ├── goemotions_kasar_pure.csv # Cleaned 6-class GoEmotions corpus
+│   └── imdb_movies_with_emotions.csv # Self-labeled IMDb movie database
+├── dataset_raw/                  # Raw benchmark datasets
+│   ├── goemotions_1.csv          # Raw GoEmotions batch 1
+│   ├── goemotions_2.csv          # Raw GoEmotions batch 2
+│   ├── goemotions_3.csv          # Raw GoEmotions batch 3
+│   └── updated_imdb_top_1000.csv # Raw IMDb Top 1000 dataset
+├── evaluation/
+│   └── 06_evaluation.ipynb       # Model comparison and metrics evaluation
+├── preprocessing/
+│   ├── filter_goemotion.ipynb    # GoEmotions emotion filtering notebook
+│   ├── filter_imdb.ipynb         # IMDb metadata extraction notebook
+│   └── preprocessing_data.ipynb  # Text cleaning and normalization notebook
+├── recommendation_system/
+│   └── 10_final_recommendation_system.ipynb # TF-IDF + Cosine similarity engine
+├── self_labeling/
+│   └── 09_movie_self_labeling.ipynb # Movie overview emotion labeling notebook
+├── splitter/
+│   └── 01_data_splitter.ipynb    # Stratified train/test splitter notebook
+├── training/
+│   ├── 02_train_svm.ipynb        # SVM baseline training notebook
+│   ├── 03_train_bilstm.ipynb     # BiLSTM deep learning training notebook
+│   ├── 04_train_distilbert.ipynb # DistilBERT fine-tuning notebook
+│   └── 05_train_bertbase.ipynb   # BERT-Base comparative training notebook
+├── tuning_model/
+│   ├── 07_tuning_distil.ipynb    # Optuna Bayesian optimization notebook
+│   └── 08_validation_performance.ipynb # Performance validation notebook
+├── .gitignore                    # Excludes models, node_modules, and cache
+├── app.py                        # Streamlit web application entry point
+├── PROJECT_DOCUMENTATION.md      # Comprehensive engineering documentation
+├── README.md                     # Project documentation
+└── requirements.txt              # Application Python dependencies
+```
+
+## Installation
+
+### Prerequisites
 - Python 3.9 or higher
-- pip (Python package manager)
+- Git
 
-#### Installation Steps
-
-1. **Clone/Download the repository:**
-
+### Steps
+1. Clone the repository:
    ```bash
-   cd /path/to/FINPRO2
+   git clone https://github.com/EdwinAntoniee/Finpro_NLP.git
+   cd Finpro_NLP
    ```
 
-2. **Create a virtual environment (optional but recommended):**
+2. Create and activate a virtual environment:
+   - **Windows (PowerShell):**
+     ```powershell
+     python -m venv venv
+     .\venv\Scripts\Activate.ps1
+     ```
+   - **macOS / Linux:**
+     ```bash
+     python3 -m venv venv
+     source venv/bin/activate
+     ```
 
-   ```bash
-   python -m venv venv
-
-   # On Windows:
-   venv\Scripts\activate
-
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies:**
-
+3. Install required dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Run the Streamlit app:**
-
+4. Launch the application:
    ```bash
    streamlit run app.py
    ```
-
-5. **Access the app:**
-   - The app will automatically open in your browser
-   - If not, navigate to: `http://localhost:8501`
-
-#### What Gets Downloaded
-
-- Transformer model (DistilBERT) from HuggingFace (~300MB on first run)
-- Pre-trained embeddings and tokenizers
-- IMDb movie dataset (~500KB)
-
----
-
-## 📊 Datasets
-
-### 1. GoEmotions Training Corpus
-
-**Purpose:** Train emotion classification models
-
-**Source:** Reddit community posts  
-**Files:** `dataset_raw/goemotions_1.csv`, `goemotions_2.csv`, `goemotions_3.csv`  
-**Processing Output:** `data/goemotions_kasar_pure.csv`
-
-**Data Statistics:**
-
-- Raw entries: ~43,000+
-- After filtering to 6 core emotions: ~11,000
-- Final training corpus: **~8,800 entries**
-
-**Class Distribution:**
-| Emotion | Count | Percentage |
-|---------|-------|-----------|
-| Joy | ~3,100 | 35% |
-| Sadness | ~2,400 | 27% |
-| Anger | ~1,900 | 22% |
-| Fear | ~800 | 9% |
-| Surprise | ~400 | 4% |
-| Love | ~200 | 2% |
-
-**Processing Pipeline:**
-
-- Multi-label → Single-label conversion (priority-based hierarchy)
-- Removal of neutral/non-core emotions
-- Class imbalance management through strategic filtering
-- Train/Test split: 80/20 (stratified)
-
-### 2. IMDb Top 1000 Movie Dataset
-
-**Purpose:** Movie metadata and semantic content for recommendations
-
-**Source:** `dataset_raw/updated_imdb_top_1000.csv`  
-**Output:** `data/imdb_movies_with_emotions.csv` (with self-labeled emotion tags)
-
-**Dataset Features:**
-
-- ~1,000 high-quality movies
-- Columns: Title, Genre, Overview
-- All movies have complete synopses
-- Diverse genre representation
-
-**Processing:**
-
-- Feature selection (Title, Genre, Overview)
-- Removal of entries with missing overviews
-- Manual emotion annotation per movie
-- Used for semantic similarity matching
-
----
-
-## 🛠️ Tech Stack
-
-### Core Framework
-
-| Component            | Library                  | Version |
-| -------------------- | ------------------------ | ------- |
-| **Web App**          | Streamlit                | ≥1.35.0 |
-| **ML Models**        | PyTorch                  | ≥2.0.0  |
-| **NLP/Transformers** | HuggingFace Transformers | ≥4.38.0 |
-| **ML/Utilities**     | Scikit-learn             | ≥1.3.0  |
-
-### Data Processing
-
-| Component               | Library       | Version |
-| ----------------------- | ------------- | ------- |
-| **Data Manipulation**   | Pandas        | ≥2.0.0  |
-| **Numerical Computing** | NumPy         | ≥1.24.0 |
-| **Tokenizers**          | SentencePiece | ≥0.1.99 |
-
-### Pre-Trained Models
-
-- **DistilBERT:** Efficient transformer for emotion classification
-- **DistilBERT-Optuna:** Hyperparameter-tuned variant
-- **BERT-Base:** Full-size transformer (for comparison)
-- **BiLSTM:** Recurrent neural network baseline
-- **SVM:** Support Vector Machine with TF-IDF features
-
----
-
-## 🔄 Complete ML Pipeline
-
-### Phase 1: Data Preprocessing
-
-**Notebooks:** `preprocessing/`
-
-- `filter_goemotion.ipynb` → Extract 6 emotions, handle multi-labels
-- `filter_imdb.ipynb` → Extract movie metadata
-- `preprocessing_data.ipynb` → Text normalization (minimal to preserve structure)
-
-**Key Decision:** Minimal preprocessing (no stopword removal, lemmatization, or stemming) to preserve syntactic structure for bidirectional transformer attention.
-
-### Phase 2: Data Splitting
-
-**Notebook:** `splitter/01_data_splitter.ipynb`
-
-- Stratified train/test split (80:20)
-- Outputs: `data_train_master.csv`, `data_test_master.csv`
-- Maintains emotion distribution across splits
-
-### Phase 3: Model Training
-
-**Training Notebooks:**
-
-1. `training/02_train_svm.ipynb` → SVM with TF-IDF
-2. `training/03_train_bilstm.ipynb` → BiLSTM neural network
-3. `training/04_train_distilbert.ipynb` → DistilBERT baseline
-4. `training/05_train_bertbase.ipynb` → BERT-Base
-5. `tuning_model/07_tuning_distil.ipynb` → DistilBERT + Optuna hyperparameter tuning
-6. `tuning_model/08_validation_performance.ipynb` → Validation and performance metrics
-
-**Saved Models:** `preprocessing/models/`
-
-- `distilbert/` → Best performing model
-- `bert-base/`
-- `bilstm/`
-- `svm/`
-
-### Phase 4: Model Evaluation
-
-**Notebook:** `evaluation/06_evaluation.ipynb`
-
-- Metrics: Accuracy, Precision, Recall, F1-Score
-- Emotion-specific performance analysis
-- Confusion matrix and classification reports
-
-### Phase 5: Movie Self-Labeling
-
-**Notebook:** `self_labeling/09_movie_self_labeling.ipynb`
-
-- Uses trained emotion classifier
-- Assigns emotion tags to IMDb movie overviews
-- Outputs: `data/imdb_movies_with_emotions.csv`
-
-### Phase 6: Recommendation System Development
-
-**Notebook:** `recommendation_system/10_final_recommendation_system.ipynb`
-
-- TF-IDF vectorization (15K features)
-- Cosine similarity ranking
-- Top-5 movie filtering by emotion match
-
----
-
-## 🤖 Models Comparison
-
-### Model Performance Summary
-
-| Model                 | Architecture                        | Training Data | Key Features                                    |
-| --------------------- | ----------------------------------- | ------------- | ----------------------------------------------- |
-| **SVM**               | TF-IDF + LinearSVC                  | GoEmotions    | Fast inference, simple baseline                 |
-| **BiLSTM**            | Embedding→BiLSTM→Dense              | GoEmotions    | Captures sequential patterns                    |
-| **DistilBERT**        | Transformer (Distilled)             | GoEmotions    | Efficient, bidirectional, 40% smaller than BERT |
-| **BERT-Base**         | Full Transformer                    | GoEmotions    | Highest accuracy potential, slower              |
-| **DistilBERT-Optuna** | Transformer + Hyperparameter Tuning | GoEmotions    | Optimized DistilBERT variant                    |
-
-### Selected Model: DistilBERT Baseline ✅
-
-- **Why:** Best balance of accuracy, speed, and resource efficiency
-- **Advantages:** 40% smaller than BERT, 60% faster inference, excellent emotion classification
-- **Deployment:** Loaded via HuggingFace pipeline for real-time inference
-
----
-
-## 🎬 Recommendation Algorithm
-
-### Step 1: Emotion Classification
-
-```
-User Input (Text) → DistilBERT → Predicted Emotion (6 classes)
-```
-
-### Step 2: Movie Filtering
-
-```
-All 1000 IMDb Movies → Filter by Predicted Emotion → Subset of 50-200 movies
-```
-
-### Step 3: Semantic Matching
-
-```
-TF-IDF Vectorization (user input + movie overview) → Cosine Similarity
-```
-
-### Step 4: Ranking & Display
-
-```
-Top-5 movies ranked by similarity score → Display with metadata
-```
-
-## 📁 Project Structure
-
-```
-FINPRO2/
-├── app.py                          # Streamlit deployment script
-├── requirements.txt                 # Python dependencies
-├── README.md / readme2.md          # Documentation
-│
-├── data/                            # Processed datasets
-│   ├── data_train_master.csv       # Training data (80%)
-│   ├── data_test_master.csv        # Test data (20%)
-│   ├── goemotions_kasar_pure.csv   # Processed emotions
-│   └── imdb_movies_with_emotions.csv # Movies with emotion tags
-│
-├── dataset_raw/                     # Raw source data
-│   ├── goemotions_*.csv            # Raw emotion data
-│   └── updated_imdb_top_1000.csv   # Raw movie data
-│
-├── preprocessing/
-│   ├── filter_goemotion.ipynb      # Process GoEmotions
-│   ├── filter_imdb.ipynb           # Process IMDb data
-│   ├── preprocessing_data.ipynb    # Text normalization
-│   └── models/                      # Pre-trained models
-│       ├── distilbert/
-│       ├── bert-base/
-│       ├── bilstm/
-│       └── svm/
-│
-├── splitter/
-│   └── 01_data_splitter.ipynb      # Train/test split (80/20)
-│
-├── training/
-│   ├── 02_train_svm.ipynb
-│   ├── 03_train_bilstm.ipynb
-│   ├── 04_train_distilbert.ipynb
-│   └── 05_train_bertbase.ipynb
-│
-├── tuning_model/
-│   ├── 07_tuning_distil.ipynb      # Hyperparameter tuning
-│   └── 08_validation_performance.ipynb
-│
-├── evaluation/
-│   └── 06_evaluation.ipynb         # Model performance metrics
-│
-├── self_labeling/
-│   └── 09_movie_self_labeling.ipynb # Emotion labeling of movies
-│
-└── recommendation_system/
-    └── 10_final_recommendation_system.ipynb # Recommendation logic
-```
-
----
-
-## 🔧 System Requirements
-
-### Minimum Requirements
-
-- **CPU:** Dual-core processor (4 cores recommended)
-- **RAM:** 8GB (16GB recommended)
-- **Storage:** 2GB (for models + datasets)
-- **Internet:** Required for first-time model download
-
-### Optional: GPU Support
-
-- **NVIDIA CUDA 11.8+** for faster inference
-- PyTorch will automatically use GPU if available
-
----
-
-
-## 🌐 Deployment
-
-### Online Version
-
-**URL:** https://finpronlp-cinemaio.streamlit.app/
-
-**Hosting:** Streamlit Cloud
-
-- Automatic updates from repository
-- Free tier with 1GB RAM
-- No local setup required
-
-
-### Web Interface
-
-1. Enter your emotional state in the text box
-2. Click "Get Movie Recommendations"
-3. View top 5 recommended movies
-
-## 📝 Preprocessing Details
-
-### Why Minimal Preprocessing?
-
-- **Transformers benefit from syntactic structure** (bidirectional attention)
-- **Negation matters:** "not good" ≠ "good"
-- **Fair model comparison:** consistent input across SVM, RNN, and Transformers
-- **Better semantic preservation:** word variations capture nuanced emotions
-
----
----
-
-**Last Updated:** 2026-06-16  
-**Status:** Production Ready ✅
