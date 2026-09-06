@@ -82,7 +82,7 @@ flowchart TD
 
 ## Folder Structure
 ```
-Finpro_NLP/
+Cinema.io-Personalized-Movie-Recommendation/
 ├── data/                         # Processed datasets and labeled movie data
 │   ├── data_test_master.csv      # Evaluated test partition
 │   ├── data_train_master.csv     # Training partition (8.8k samples)
@@ -129,8 +129,8 @@ Finpro_NLP/
 ### Steps
 1. Clone the repository:
    ```bash
-   git clone https://github.com/EdwinAntoniee/Finpro_NLP.git
-   cd Finpro_NLP
+   git clone https://github.com/EdwinAntoniee/Cinema.io-Personalized-Movie-Recommendation.git
+   cd Cinema.io-Personalized-Movie-Recommendation
    ```
 
 2. Create and activate a virtual environment:
